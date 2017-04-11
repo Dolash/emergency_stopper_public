@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(map_laser_filter)
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+	std_msgs
+  geometry_msgs
+  tf
+p2os_driver
+sensor_msgs
+autonomy_leds_msgs
+nav_msgs
+)
+
+catkin_package(
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs tf p2os_driver sensor_msgs autonomy_leds_msgs nav_msgs
+)
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+)
+
+add_executable(map_laser_filter src/map_laser_filter.cpp src/main.cpp)
+
+target_link_libraries(map_laser_filter
+   ${catkin_LIBRARIES}
+)
+
+install(TARGETS map_laser_filter
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        COMPONENT main)

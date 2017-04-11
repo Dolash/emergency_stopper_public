@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+
+<arg name="scan_topic1" default = "/scan"/>
+
+
+<node name="emergency_stopper1" pkg="emergency_stopper" type="emergency_stopper" output="screen" respawn="true">
+
+	<param name="scan_topic" value="$(arg scan_topic1)"/>
+	
+  </node>
+
+
+</launch>

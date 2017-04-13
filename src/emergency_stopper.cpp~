@@ -45,7 +45,7 @@ void EmergencyStopper::spinOnce() {
 		result.data = false;
 		for (int i = 0; i < scan.ranges.size(); i++)
 		{
-			float allowedDistance = 0.4 + (0.2 - (0.2*(fabs(90 - i)/90)));
+			float allowedDistance = 0.4 + (0.3 - (0.3*(fabs(90 - i)/90)));
 			if (scan.ranges[i] < allowedDistance)
 			{
 				result.data = true;
@@ -60,7 +60,14 @@ void EmergencyStopper::spinOnce() {
 	}
 	else
 	{
-		ROS_INFO("[emergency_stopper] Awaiting scan.");
+		if (scanReceived == false)
+		{
+			ROS_INFO("[emergency_stopper] Awaiting scan.");
+		}
+		else
+		{
+			ROS_INFO("[emergency_stopper] Not in winner state.");
+		}
 	}	
 
 

@@ -62,14 +62,14 @@ void EmergencyStopper::spinOnce() {
 	{
 		result.data = false;
 		emergency_stop_pub.publish(result);
-		if (scanReceived == false)
+		/*if (scanReceived == false)
 		{
 			ROS_INFO("[emergency_stopper] Awaiting scan.");
 		}
 		else
 		{
 			ROS_INFO("[emergency_stopper] Not in winner state.");
-		}
+		}*/
 	}	
 
 

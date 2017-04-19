@@ -60,6 +60,8 @@ void EmergencyStopper::spinOnce() {
 	}
 	else
 	{
+		result.data = false;
+		emergency_stop_pub.publish(result);
 		if (scanReceived == false)
 		{
 			ROS_INFO("[emergency_stopper] Awaiting scan.");

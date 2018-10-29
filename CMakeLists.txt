@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
   geometry_msgs
   tf
-p2os_driver
+p2os_msgs
 sensor_msgs
 autonomy_leds_msgs
 nav_msgs
@@ -14,7 +14,7 @@ nav_msgs
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp std_msgs geometry_msgs tf p2os_driver sensor_msgs autonomy_leds_msgs nav_msgs
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs tf p2os_msgs sensor_msgs autonomy_leds_msgs nav_msgs
 )
 
 include_directories(

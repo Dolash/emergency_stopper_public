@@ -39,11 +39,14 @@ private:
 
 	double loopHz;
 	bool scanReceived;
+	bool cmdReceived;
 	std_msgs::Bool winner;
 	std_msgs::Bool result;
+	std_msgs::Float32 multiplier;
 
 	std::string scanTopic;
 	std::string winnerTopic;
+	std::string multiplierTopic;
 
 	sensor_msgs::LaserScan scan;
 	geometry_msgs::Twist move_cmd;
@@ -51,7 +54,9 @@ private:
 
   	void laserCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan);
 	void winnerCallback(const std_msgs::Bool inputWinner);
-
+	void multiplierCallback(const std_msgs::Float32 inputMultiplier);
+	void cmdVelListenerCallback(const geometry_msgs::Twist navData);
+	
 protected:
 	ros::NodeHandle nh;
 	ros::NodeHandle privNh;
@@ -62,6 +67,8 @@ protected:
 
  	ros::Subscriber laserSub;
 	ros::Subscriber winnerSub;
+	ros::Subscriber multiplierSub;
+	ros::Subscriber cmdVelListenerSub;
 
 
 public:

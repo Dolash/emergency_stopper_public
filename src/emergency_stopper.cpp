@@ -8,16 +8,20 @@ EmergencyStopper::EmergencyStopper(ros::NodeHandle& nh)
 
 	privNh.param<std::string>("scan_topic", scanTopic, "/scan");
 	privNh.param<std::string>("winner_topic", winnerTopic, "/winner");
+	privNh.param<std::string>("multiplier_topic", multiplierTopic, "/multiplier");
 	scanReceived = false;
 	winner.data = false;
-	loopHz = 10;
+	multiplier.data = 1.0;
+	loopHz = 50;
 	laserSub = nh.subscribe(scanTopic, 1, &EmergencyStopper::laserCallback, this);
 	winnerSub = nh.subscribe(winnerTopic, 1, &EmergencyStopper::winnerCallback, this);
+	multiplierSub = nh.subscribe(multiplierTopic, 1, &EmergencyStopper::multiplierCallback, this);
+	cmdVelListenerSub = nh.subscribe("/listener/cmd_vel", 1, &EmergencyStopper::cmdVelListenerCallback, this);
 	cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 	emergency_stop_pub = nh.advertise<std_msgs::Bool>("/emergency_stop", 1);
-	//scrubbed_laser_pub = nh.advertise<sensor_msgs::LaserScan>(scrubbedScanTopic, 1);
 	move_cmd.linear.x = 0.0;
 	move_cmd.angular.z = 0.0;
+	cmdReceived = false;
 		    
 
 	ROS_INFO("[emergency_stopper] Initialized.");
@@ -37,24 +41,47 @@ void EmergencyStopper::winnerCallback(const std_msgs::Bool inputWinner) {
     winner = inputWinner;
 }
 
+void EmergencyStopper::multiplierCallback(const std_msgs::Float32 inputMultiplier) {
+    multiplier = inputMultiplier;
+}
+void EmergencyStopper::cmdVelListenerCallback(const geometry_msgs::Twist navData) {
+    move_cmd = navData;
+	cmdReceived = true;
+}
+
 
 void EmergencyStopper::spinOnce() {
-	if (scanReceived == true && winner.data == true)
+	ros::Rate rate(loopHz);
+	if (scanReceived == true && cmdReceived == true)
 	{
 		
 		result.data = false;
-		for (int i = 0; i < scan.ranges.size(); i++)
+		/*for (int i = 0; i < scan.ranges.size(); i++)
 		{
-			float allowedDistance = 0.4 + (0.3 - (0.3*(fabs(90 - i)/90)));
+			float allowedDistance = 0.3 + (0.2 - (0.2*(fabs(90 - i)/90)));
 			if (scan.ranges[i] < allowedDistance)
 			{
 				result.data = true;
 				emergency_stop_pub.publish(result);
 				cmd_vel_pub.publish(move_cmd);
 			}
+		}*/
+		for (int i = (scan.ranges.size()/4); i < scan.ranges.size() - (3*(scan.ranges.size()/4)); i++)
+		{
+			float allowedDistance = 0.3 + (0.15 - (0.15*(fabs((scan.ranges.size()/2) - i)/(scan.ranges.size()/2))));
+			if (scan.ranges[i] < allowedDistance)
+			{
+				result.data = true;
+				emergency_stop_pub.publish(result);
+				move_cmd.linear.x = -0.3;
+				cmd_vel_pub.publish(move_cmd);
+			}
+			
 		}
 		if (result.data == false)
 		{
+			move_cmd.linear.x = (move_cmd.linear.x)*(multiplier.data);
+			cmd_vel_pub.publish(move_cmd);
 			emergency_stop_pub.publish(result);
 		}
 	}
@@ -72,7 +99,7 @@ void EmergencyStopper::spinOnce() {
 		}*/
 	}	
 
-
+	rate.sleep();
   	ros::spinOnce();
 }
 

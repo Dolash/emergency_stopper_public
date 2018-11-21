@@ -42,6 +42,7 @@ void EmergencyStopper::winnerCallback(const std_msgs::Bool inputWinner) {
 }
 
 void EmergencyStopper::multiplierCallback(const std_msgs::Float32 inputMultiplier) {
+
     multiplier = inputMultiplier;
 }
 void EmergencyStopper::cmdVelListenerCallback(const geometry_msgs::Twist navData) {
@@ -66,21 +67,30 @@ void EmergencyStopper::spinOnce() {
 				cmd_vel_pub.publish(move_cmd);
 			}
 		}*/
-		for (int i = (scan.ranges.size()/4); i < scan.ranges.size() - (3*(scan.ranges.size()/4)); i++)
+
+		for (int i = ((0.0f + scan.ranges.size())/4.0f); i < (3.0f*((0.0f + scan.ranges.size())/4.0f)); i++)
 		{
-			float allowedDistance = 0.3 + (0.15 - (0.15*(fabs((scan.ranges.size()/2) - i)/(scan.ranges.size()/2))));
+			float allowedDistance = 0.35 + (0.15 - (0.15*(fabs(((0.0f + scan.ranges.size())/2.0f) - i)/((0.0f + scan.ranges.size())/2.0f))));
 			if (scan.ranges[i] < allowedDistance)
 			{
 				result.data = true;
 				emergency_stop_pub.publish(result);
-				move_cmd.linear.x = -0.3;
+				move_cmd.linear.x = -0.31909;
 				cmd_vel_pub.publish(move_cmd);
 			}
 			
 		}
 		if (result.data == false)
 		{
-			move_cmd.linear.x = (move_cmd.linear.x)*(0.1);
+			if (move_cmd.linear.x == -0.31909)
+			{
+				move_cmd.linear.x = 0.0;
+			}
+			if (move_cmd.linear.x > 0.0)
+			{
+				move_cmd.linear.x = (move_cmd.linear.x)*(multiplier.data);
+			}
+			
 			cmd_vel_pub.publish(move_cmd);
 			emergency_stop_pub.publish(result);
 		}

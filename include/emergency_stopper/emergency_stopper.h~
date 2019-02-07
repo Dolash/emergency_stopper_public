@@ -16,9 +16,11 @@
 #include <std_msgs/Bool.h>
 #include <p2os_msgs/GripperState.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Float64.h>
 #include <p2os_msgs/SonarArray.h>
 #include <std_msgs/UInt16.h>
 #include <std_msgs/ColorRGBA.h>
+#include <sensor_msgs/Joy.h>
 #include <autonomy_leds_msgs/Keyframe.h>
 #include <vector>
 #include <unistd.h>
@@ -40,6 +42,7 @@ private:
 	double loopHz;
 	bool scanReceived;
 	bool cmdReceived;
+	bool sonarUse;
 	std_msgs::Bool winner;
 	std_msgs::Bool result;
 	std_msgs::Float32 multiplier;
@@ -47,15 +50,25 @@ private:
 	std::string scanTopic;
 	std::string winnerTopic;
 	std::string multiplierTopic;
+	std::string joyTopic;
 
 	sensor_msgs::LaserScan scan;
+	std::vector<double> sonarScan;
+	geometry_msgs::Twist received_cmd;
 	geometry_msgs::Twist move_cmd;
+
+	sensor_msgs::Joy joyResult;
 	
+	double baseDistance;
+	double stopSpeed;
+	double stopperWidth;
 
   	void laserCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan);
+	void sonarCallback(const p2os_msgs::SonarArray sonarData);
 	void winnerCallback(const std_msgs::Bool inputWinner);
 	void multiplierCallback(const std_msgs::Float32 inputMultiplier);
-	void cmdVelListenerCallback(const geometry_msgs::Twist navData)
+	void cmdVelListenerCallback(const geometry_msgs::Twist navData);
+	void joyCallback(const sensor_msgs::Joy joyMessage);
 	
 protected:
 	ros::NodeHandle nh;
@@ -65,10 +78,11 @@ protected:
 	ros::Publisher cmd_vel_pub;
 	ros::Publisher emergency_stop_pub;
 
- 	ros::Subscriber laserSub;
+ 	ros::Subscriber rangerSub;
 	ros::Subscriber winnerSub;
 	ros::Subscriber multiplierSub;
 	ros::Subscriber cmdVelListenerSub;
+	ros::Subscriber joySub;
 
 
 public:
